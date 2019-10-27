@@ -18,7 +18,7 @@ Prerequisites
 =================
 
 FLAME requires **autoconf** and **automake**.
-IMPORTANT NOTE:currently only **automake** up to version 1.15.1
+IMPORTANT NOTE: currently only **automake** up to version 1.15.1
 is supported due to changes introduced in later versions
 that break the Makefile structure.
 
