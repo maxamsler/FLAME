@@ -128,7 +128,7 @@ subroutine ekf_rivals(parini,ann_arr,opt_ann)
         r0=10.d0
         alpha=100.d-2
         rf=1.d-6
-    elseif(trim(parini%approach_ann)=='cent2') then
+    elseif(trim(parini%approach_ann)=='centt') then
         r0=10.d0
         alpha=100.d-2
         rf=1.d-6
@@ -146,9 +146,9 @@ subroutine ekf_rivals(parini,ann_arr,opt_ann)
         !r0=1.d0
         !alpha=5.d-1
         !rf=1.d-8
-        r0=10.d0
+        r0=100.d0
         alpha=100.d-2
-        rf=1.d-10
+        rf=1.d-6
     endif
     if(parini%fit_hoppint) then
         call fit_hgen(parini,ann_arr,opt_ann)
@@ -255,7 +255,7 @@ subroutine analyze_epoch_init(parini,ann_arr)
     type(typ_ann_arr), intent(inout):: ann_arr
     !local variables
     if(.not. (trim(ann_arr%approach)=='eem1' .or. trim(parini%approach_ann)=='cent1' &
-        .or. trim(ann_arr%approach)=='cent2' .or. trim(ann_arr%approach)=='cent3')) return
+        .or. trim(ann_arr%approach)=='centt' .or. trim(ann_arr%approach)=='cent3')) return
     ann_arr%natsum(1:10)=0
     ann_arr%qmin(1:10)=huge(1.d0)
     ann_arr%qmax(1:10)=-huge(1.d0)
@@ -280,7 +280,7 @@ subroutine analyze_epoch_print(parini,iter,ann_arr)
     character(50):: fn_charge, fn_chi
     character(20):: str_key
     if(.not. (trim(ann_arr%approach)=='eem1' .or. trim(parini%approach_ann)=='cent1' &
-        .or. trim(ann_arr%approach)=='cent2' .or. trim(ann_arr%approach)=='cent3')) return
+        .or. trim(ann_arr%approach)=='centt' .or. trim(ann_arr%approach)=='cent3')) return
     do i=1,parini%ntypat
         !fn_charge='charge.'//trim(parini%stypat(i))
         !fn_chi='chi.'//trim(parini%stypat(i))
