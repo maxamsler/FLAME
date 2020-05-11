@@ -1237,14 +1237,15 @@ end subroutine
 subroutine getvol_strain(strain,latvec0,vol)
 !Compute the volume based on strain and relative cell
 implicit none
-real(8), dimension(3,3):: latvec0,latvec,strain,unitmat
+real(8), dimension(3,3):: latvec0,latvec,strain,unitmat,tmp
 real(8):: vol
 unitmat=0.d0
 unitmat(1,1)=1.d0
 unitmat(2,2)=1.d0
 unitmat(3,3)=1.d0
-    latvec=matmul(unitmat+strain,latvec0) 
-    call getvol(latvec,vol)
+tmp = unitmat+strain
+latvec=matmul(tmp,latvec0) 
+call getvol(latvec,vol)
 end subroutine
 
 subroutine  get_BFGS_forces_strainlatt(parini,parres,pos_all,force_all,enthalpy,getwfk,iprec,latvec0,&
@@ -1263,7 +1264,7 @@ real(8):: force_all(3*parini%nat+9)
 real(8):: enthalpy,pressure,vol,unitmat(3,3)
 real(8):: xred_in(3,parini%nat),fcart_in(3,parini%nat),strten_in(6),etot_in,latvec_in(3,3),transformed(3,3),transformed_inv(3,3)
 real(8):: str_matrix(3,3),flat(3,3),pressure_mat(3,3),tmplat(3,3),sigma(3,3),crossp(3),stressvol(3,3),latvec0(3,3)
-real(8):: g(3,3),lattrans(3,3),strainall(3,3),strainalltrans(3,3)
+real(8):: g(3,3),lattrans(3,3),strainall(3,3),strainalltrans(3,3), tmp(3,3)
 logical:: getwfk
 
 unitmat=0.d0
@@ -1291,7 +1292,8 @@ elseif(lattdeg==2) then
     do iat=1,3
       strainall(:,iat)=pos_all(3*parini%nat+(iat-1)*3+1:3*parini%nat+iat*3)
     enddo
-    latvec_in=matmul(unitmat+strainall,latvec0) 
+    tmp = unitmat + strainall
+    latvec_in=matmul(tmp,latvec0) 
 endif
        call get_energyandforces_single(parini,parres,latvec_in,xred_in,fcart_in,strten_in,etot_in,iprec,getwfk)
 !****************************************************************************************************************   
