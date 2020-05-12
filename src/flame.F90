@@ -22,8 +22,8 @@ program alborz
         call task_saddle(parini)
     elseif(trim(parini%task)=='dynamics') then
         call dynamics(parini)
-    elseif(trim(parini%task)=='conf_comp') then
-        call conf_comp(parini)
+    elseif(trim(parini%task)=='descriptor_distance') then
+        call descriptor_distance(parini)
     elseif(trim(parini%task)=='ann') then
         call task_ann(parini)
     elseif(trim(parini%task)=='genconf') then

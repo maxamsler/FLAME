@@ -8,7 +8,7 @@ bin_PROGRAMS = flame
 
 SRC_F = minpack/dpmpar.f minpack/enorm.f  minpack/lmder.f minpack/lmpar.f minpack/qrfac.f minpack/qrsolv.f
 
-AM_FCFLAGS = -DMPI 
+AM_FCFLAGS = # -DMPI 
 if HAVE_MKL
 AM_FCFLAGS += -DHAVE_MKL
 endif

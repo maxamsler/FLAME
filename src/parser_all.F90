@@ -396,7 +396,7 @@ subroutine get_genconf_parameters(file_ini,parini)
     enddo
 end subroutine get_genconf_parameters
 !*****************************************************************************************
-subroutine get_conf_comp_parameters(file_ini,parini)
+subroutine get_descriptor_distance_parameters(file_ini,parini)
     use mod_parini, only: typ_parini
     use mod_parser_ini, only: get_one_param, get_header_location, split_line
     use mod_task, only: typ_file_ini
@@ -405,23 +405,25 @@ subroutine get_conf_comp_parameters(file_ini,parini)
     type(typ_parini), intent(inout):: parini
     !local variables
     integer:: iline
-    call get_header_location(file_ini,'[conf_comp]')
+    call get_header_location(file_ini,'[descriptor_distance]')
     if(file_ini%iline_header==0) then
-        parini%avail_conf_comp=.false.
-        if(trim(parini%task)=='conf_comp') then
-            write(*,'(a)') 'WARNING: [conf_comp] block not available in input.ini, default values will be used.'
+        parini%avail_descriptor_distance=.false.
+        if(trim(parini%task)=='descriptor_distance') then
+            write(*,'(a)') 'WARNING: [descriptor_distance] block not available in input.ini, default values will be used.'
         endif
         return
     else
-        parini%avail_conf_comp=.true.
+        parini%avail_descriptor_distance=.true.
     endif
     do iline=file_ini%iline_header+1,file_ini%iline_next_header-1
         file_ini%iline=iline
         if(file_ini%stat_line_is_read(file_ini%iline)) cycle
         call split_line(file_ini)
-        call get_one_param(file_ini,'tol',real_var=parini%tol_conf_comp)
+        call get_one_param(file_ini,'tol',real_var=parini%tol_descriptor_distance)
+        call get_one_param(file_ini,'atoms',log_var=parini%atoms_descriptor_distance)
+        call get_one_param(file_ini,'types',char_line_var=parini%types_descriptor_distance)
     enddo
-end subroutine get_conf_comp_parameters
+end subroutine get_descriptor_distance_parameters
 !*****************************************************************************************
 subroutine get_testforces_parameters(file_ini,parini)
     use mod_parini, only: typ_parini

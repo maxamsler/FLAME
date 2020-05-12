@@ -296,8 +296,10 @@
    fbmax: -1.0
    variable_cell: False
    nonorthogonal: False
- conf_comp:
+ descriptor_distance:
    tol: 1.0
+   atoms: False
+   types: unknown
  testforces:
    method: unknown
  single_point:

@@ -69,7 +69,8 @@ subroutine alborz_init(parini,parres,file_ini)
         call get_dynamics_parameters(file_ini,parini)
         call get_bader_parameters(file_ini,parini)
         call get_genconf_parameters(file_ini,parini)
-        call get_conf_comp_parameters(file_ini,parini)
+        call get_descriptor_distance_parameters(file_ini,parini)
+        call set_atomc_types_descriptor_distance(parini)
         call get_testforces_parameters(file_ini,parini)
         call get_single_point_parameters(file_ini,parini)
         call get_ewald_parameters(file_ini,parini)
@@ -259,6 +260,43 @@ subroutine set_atomc_types_info(parini)
     !    write(*,'(a5,i2,a5)') 'type ',parini%ltypat(i),trim(parini%stypat(i))
     !enddo
 end subroutine set_atomc_types_info
+!*****************************************************************************************
+subroutine set_atomc_types_descriptor_distance(parini)
+    use mod_parini, only: typ_parini
+    use yaml_output
+    implicit none
+    type(typ_parini), intent(inout):: parini
+    integer:: ntype_dd,i,j
+    logical:: notype
+    !local variables
+    if (parini%atoms_descriptor_distance) then
+        if(trim(parini%types_descriptor_distance)=='unknown') then
+            parini%stypat_descriptor_distance=parini%stypat
+            parini%ntypat_descriptor_distance=parini%ntypat
+        else
+            call count_words(parini%types_descriptor_distance,ntype_dd)
+            parini%ntypat_descriptor_distance = ntype_dd
+            read(parini%types_descriptor_distance,*) parini%stypat_descriptor_distance(1:ntype_dd)
+        endif
+        call yaml_mapping_open('system info',flow=.true.)
+        call yaml_map('ntype_descriptor_distance',parini%ntypat_descriptor_distance,fmt='(i2)')
+        do i=1,parini%ntypat_descriptor_distance
+            notype = .true.
+            do j=1,parini%ntypat
+                if(trim(parini%stypat_descriptor_distance(i))==trim(parini%stypat(j))) then 
+                    call yaml_map(trim(parini%stypat_descriptor_distance(i)),parini%ltypat(j),fmt='(i2)')
+                    notype = .false.
+                endif
+            enddo
+            if (notype) then
+                write(*,'(2a)') 'ERROR: keyword types in [descriptor_distance] contains elements not in types in [main] ', &
+                    trim(parini%types_descriptor_distance)
+                stop
+            endif
+        enddo
+        call yaml_mapping_close()
+    endif
+end subroutine set_atomc_types_descriptor_distance
 !*****************************************************************************************
 subroutine flm_print_logo(parini)
     use mod_parini, only: typ_parini

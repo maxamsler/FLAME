@@ -1,5 +1,5 @@
 !*****************************************************************************************
-subroutine conf_comp(parini)
+subroutine descriptor_distance(parini)
     use mod_parini, only: typ_parini
     use mod_atoms, only: typ_atoms_all, atom_all_allocate, atom_all_deallocate, set_rcov
     use mod_acf, only: acf_read
@@ -12,12 +12,12 @@ subroutine conf_comp(parini)
     character(256):: comment1, comment2
     integer:: iconf, jconf, ifp
     real(8):: ttnrm, ttmax, tt, ttsum
-    atoms_all%atoms%tol=parini%tol_conf_comp
+    atoms_all%atoms%tol=parini%tol_descriptor_distance
     call acf_read(parini,'posinp.acf',10,atoms_all=atoms_all)
     call set_rcov(atoms_all%atoms)
     !print '(a,f7.2)','RCOV',atoms%rcov(1)
     atoms_all%atoms%nfp=10*atoms_all%atoms%nat
-    !call atom_copy(atoms,atoms_all%atoms,'conf_comp: atoms->atoms_all%atoms')
+    !call atom_copy(atoms,atoms_all%atoms,'descriptor_distance: atoms->atoms_all%atoms')
     atoms_all%nconfmax=100
     call atom_all_allocate(atoms_all,fpall=.true.)
     !atoms_all%ratall(1:3,1:atoms%nat,1:atoms_all%nconfmax)=atoms_all%ratall(1:3,1:atoms%nat,1:atoms_all%nconfmax)*0.529177d0
@@ -50,7 +50,7 @@ subroutine conf_comp(parini)
         !write(*,*)
     enddo
     call atom_all_deallocate(atoms_all,ratall=.true.,epotall=.true.,fpall=.true.)
-end subroutine conf_comp
+end subroutine descriptor_distance
 !*****************************************************************************************
 subroutine set_fpall_ann(atoms_all)
     use mod_atoms, only: typ_atoms_all, set_rat

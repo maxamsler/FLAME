@@ -168,9 +168,13 @@ module mod_parini
         logical :: variable_cell_genconf= .false.
         logical :: nonorthogonal_genconf= .false.
         !-----------------------------------------------------------------------
-        !parameters of [conf_comp]
-        logical:: avail_conf_comp=.false.
-        real(8):: tol_conf_comp
+        !parameters of [descriptor_distance]
+        logical:: avail_descriptor_distance=.false.
+        real(8):: tol_descriptor_distance
+        logical:: atoms_descriptor_distance=.false.
+        character(50):: types_descriptor_distance='unknown'
+        character(5):: stypat_descriptor_distance(20)='none'
+        integer:: ntypat_descriptor_distance=-1
         !-----------------------------------------------------------------------
         !parameters of [testforces]
         logical:: avail_testforces=.false.

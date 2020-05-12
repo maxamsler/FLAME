@@ -14,7 +14,7 @@ subroutine ann_check_symmetry_function(parini)
     type(typ_symfunc_arr):: symfunc_check
     type(typ_symfunc):: symfunc
     character(400):: fnarr(100000), fn_tmp, filename
-    character(30):: fnout,fnout1
+    character(30):: fnout,fnout1,fnout2
     integer:: iat,jat,i,j,ig,jg,iconf,jconf, ng, nat,a,i0
     integer:: iatmin(140), iatmax(140), iconfmin(140), iconfmax(140)
     real(8) :: tt,distance,distance2,de
@@ -153,44 +153,93 @@ subroutine ann_check_symmetry_function(parini)
         enddo
     endif
     !----------------------------------------------------------   
-        fnout='incompatible'
         fnout1='distall'
         open(unit=111,file=fnout1,status='replace',iostat=ios)
+        if(ios/=0) then
+            write(*,'(a)') 'ERROR: failure openning output file '//fnout1
+            stop
+        endif
+        fnout='incompatible'
         open(unit=11,file=fnout,status='replace',iostat=ios)
         if(ios/=0) then
-            write(*,'(a)') 'ERROR: failure openning output file'
+            write(*,'(a)') 'ERROR: failure openning output file '//fnout
+            stop
+        endif
+        fnout='compatible'
+        open(unit=12,file=fnout,status='replace',iostat=ios)
+        if(ios/=0) then
+            write(*,'(a)') 'ERROR: failure openning output file '//fnout
             stop
         endif
     !---------------------------------------------------------- 
-    do iconf=1,atoms_check%nconf
-    allocate(diff(symfunc_check%symfunc(iconf)%ng),c(atoms_check%atoms(iconf)%nat,atoms_check%atoms(iconf)%nat),F(atoms_check%atoms(iconf)%nat)) 
-        do jconf=iconf+1,atoms_check%nconf
-                do iat=1,atoms_check%atoms(iconf)%nat
-                    do jat=1,atoms_check%atoms(jconf)%nat
-                        do ig=1,symfunc_check%symfunc(iconf)%ng
-                            diff(ig)=symfunc_check%symfunc(iconf)%y(ig,iat)-symfunc_check%symfunc(jconf)%y(ig,jat)
-                        enddo
-                        c(iat,jat)=dot_product(diff,diff)
-                    enddo !over jat
-                enddo !over iat
-                call hung(atoms_check%atoms(iconf)%nat,c,F,distance2)
-                distance=sqrt(distance2)
-                de=abs(atoms_check%atoms(iconf)%epot-atoms_check%atoms(jconf)%epot)
-                write(111,'(2(a25,i6,1x),2es20.10)') adjustl(trim(atoms_check%fn(iconf))),atoms_check%lconf(iconf), &
-                    adjustl(trim(atoms_check%fn(jconf))),atoms_check%lconf(jconf),distance,de
-                if(distance.le.dtol .and. de.ge.etol) then
-                    write(11,'(2(a25,i6,1x),2es20.10)') adjustl(trim(atoms_check%fn(iconf))),atoms_check%lconf(iconf), &
-                        adjustl(trim(atoms_check%fn(jconf))),atoms_check%lconf(jconf),distance,de
+    if (.not. parini%atoms_descriptor_distance) then !Global structural distance
+        do iconf=1,atoms_check%nconf
+        allocate(diff(symfunc_check%symfunc(iconf)%ng),c(atoms_check%atoms(iconf)%nat,atoms_check%atoms(iconf)%nat),F(atoms_check%atoms(iconf)%nat)) 
+            do jconf=iconf+1,atoms_check%nconf
+                    do iat=1,atoms_check%atoms(iconf)%nat
+                        do jat=1,atoms_check%atoms(jconf)%nat
+                            do ig=1,symfunc_check%symfunc(iconf)%ng
+                                diff(ig)=symfunc_check%symfunc(iconf)%y(ig,iat)-symfunc_check%symfunc(jconf)%y(ig,jat)
+                            enddo
+                            c(iat,jat)=dot_product(diff,diff)
+                        enddo !over jat
+                    enddo !over iat
+                        call hung(atoms_check%atoms(iconf)%nat,c,F,distance2)
+                        distance=sqrt(distance2)
+                        de=abs(atoms_check%atoms(iconf)%epot-atoms_check%atoms(jconf)%epot)
+                        write(111,'(2(a,i6,1x),2es20.10)') adjustl(trim(atoms_check%fn(iconf))),atoms_check%lconf(iconf), &
+                            adjustl(trim(atoms_check%fn(jconf))),atoms_check%lconf(jconf),distance,de
+                        if(distance.le.dtol .and. de.ge.etol) then
+                            write(11,'(2(a,i6,1x),2es20.10)') adjustl(trim(atoms_check%fn(iconf))),atoms_check%lconf(iconf), &
+                                adjustl(trim(atoms_check%fn(jconf))),atoms_check%lconf(jconf),distance,de
+                            cycle
+                        else
+                            write(12,'(2(a,i6,1x),2es20.10)') trim(atoms_check%fn(iconf)),atoms_check%lconf(iconf), &
+                                trim(atoms_check%fn(jconf)),atoms_check%lconf(jconf),distance,de
+                        endif
+            enddo !over jconf
+        deallocate(diff,c,F) 
+        enddo !over iconf
+    else !Per atom structural distance
+        do iconf=1,atoms_check%nconf
+        allocate(diff(symfunc_check%symfunc(iconf)%ng)) 
+            do iat=1,atoms_check%atoms(iconf)%nat
+                if (.not. ANY(parini%stypat_descriptor_distance(:) == atoms_check%atoms(iconf)%sat(iat))) then
                     cycle
-                else
-                    write(12,'(2(a25,i6,1x),2es20.10)') trim(atoms_check%fn(iconf)),atoms_check%lconf(iconf), &
-                        trim(atoms_check%fn(jconf)),atoms_check%lconf(jconf),distance,de
                 endif
-        enddo !over jconf
-    deallocate(diff,c,F) 
-    enddo !over iconf
+                do jconf=iconf,atoms_check%nconf
+                        do jat=1,atoms_check%atoms(jconf)%nat
+                            if (jconf==iconf .and. jat.le.iat) cycle
+                            if (.not. ANY(parini%stypat_descriptor_distance(:) == atoms_check%atoms(jconf)%sat(jat))) then
+                                cycle
+                            endif
+                            diff = 0.d0
+                            do ig=1,symfunc_check%symfunc(iconf)%ng
+                                diff(ig)=symfunc_check%symfunc(iconf)%y(ig,iat)-symfunc_check%symfunc(jconf)%y(ig,jat)
+                            enddo
+
+                            distance=sqrt(dot_product(diff,diff))
+                            de=abs(atoms_check%atoms(iconf)%epot-atoms_check%atoms(jconf)%epot)
+
+                            write(111,'(2(a,i6,i6,1x),2es20.10)') adjustl(trim(atoms_check%fn(iconf))),atoms_check%lconf(iconf), iat, &
+                                adjustl(trim(atoms_check%fn(jconf))),atoms_check%lconf(jconf), jat, distance,de
+                            if(distance.le.dtol .and. de.ge.etol) then
+                                write(11,'(2(a,i6,i6,1x),2es20.10)') adjustl(trim(atoms_check%fn(iconf))),atoms_check%lconf(iconf), iat, &
+                                    adjustl(trim(atoms_check%fn(jconf))),atoms_check%lconf(jconf), jat, distance,de
+                                cycle
+                            else
+                                write(12,'(2(a,i6,i6,1x),2es20.10)') trim(atoms_check%fn(iconf)),atoms_check%lconf(iconf), iat,&
+                                    trim(atoms_check%fn(jconf)),atoms_check%lconf(jconf), jat, distance,de
+                            endif
+                        enddo !over jat
+                enddo !over jconf
+            enddo !over iat
+        deallocate(diff) 
+        enddo !over iconf
+    endif
     end associate
     close(11)
+    close(12)
     close(111)
     call f_release_routine()
 end subroutine ann_check_symmetry_function 

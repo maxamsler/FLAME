@@ -48,8 +48,8 @@ subroutine yaml_get_parameters(parini)
             call yaml_get_bader_parameters(parini)
         case("genconf")
             call yaml_get_genconf_parameters(parini)
-        case("conf_comp")
-            call yaml_get_conf_comp_parameters(parini)
+        case("descriptor_distance")
+            call yaml_get_descriptor_distance_parameters(parini)
         case("testforces")
             call yaml_get_testforces_parameters(parini)
         case("single_point")
@@ -450,15 +450,18 @@ subroutine yaml_get_genconf_parameters(parini)
     parini%nonorthogonal_genconf=parini%subdict//"nonorthogonal"
 end subroutine yaml_get_genconf_parameters
 !*****************************************************************************************
-subroutine yaml_get_conf_comp_parameters(parini)
+subroutine yaml_get_descriptor_distance_parameters(parini)
     use mod_parini, only: typ_parini
     use dictionaries
     implicit none
     type(typ_parini), intent(inout):: parini
     !local variales
-    if(dict_size(parini%subdict)<1) stop 'ERROR: conf_comp block in flame_in.yaml is empty.'
-    parini%tol_conf_comp=parini%subdict//"tol"
-end subroutine yaml_get_conf_comp_parameters
+    if(dict_size(parini%subdict)<1) stop 'ERROR: descriptor_distance block in flame_in.yaml is empty.'
+    parini%tol_descriptor_distance=parini%subdict//"tol"
+    parini%atoms_descriptor_distance=parini%subdict//"atoms"
+    parini%types_descriptor_distance=parini%subdict//"types"
+    call set_atomc_types_descriptor_distance(parini)
+end subroutine yaml_get_descriptor_distance_parameters
 !*****************************************************************************************
 subroutine yaml_get_testforces_parameters(parini)
     use mod_parini, only: typ_parini
