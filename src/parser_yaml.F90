@@ -460,6 +460,7 @@ subroutine yaml_get_descriptor_distance_parameters(parini)
     parini%tol_descriptor_distance=parini%subdict//"tol"
     parini%atoms_descriptor_distance=parini%subdict//"atoms"
     parini%types_descriptor_distance=parini%subdict//"types"
+    parini%plot_descriptor_distance=parini%subdict//"plot"
     call set_atomc_types_descriptor_distance(parini)
 end subroutine yaml_get_descriptor_distance_parameters
 !*****************************************************************************************

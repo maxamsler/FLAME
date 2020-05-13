@@ -299,6 +299,7 @@
  descriptor_distance:
    tol: 1.0
    atoms: False
+   plot: False
    types: unknown
  testforces:
    method: unknown

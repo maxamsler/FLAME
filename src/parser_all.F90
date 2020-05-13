@@ -421,6 +421,7 @@ subroutine get_descriptor_distance_parameters(file_ini,parini)
         call split_line(file_ini)
         call get_one_param(file_ini,'tol',real_var=parini%tol_descriptor_distance)
         call get_one_param(file_ini,'atoms',log_var=parini%atoms_descriptor_distance)
+        call get_one_param(file_ini,'plot',log_var=parini%plot_descriptor_distance)
         call get_one_param(file_ini,'types',char_line_var=parini%types_descriptor_distance)
     enddo
 end subroutine get_descriptor_distance_parameters

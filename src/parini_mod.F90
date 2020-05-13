@@ -172,6 +172,7 @@ module mod_parini
         logical:: avail_descriptor_distance=.false.
         real(8):: tol_descriptor_distance
         logical:: atoms_descriptor_distance=.false.
+        logical:: plot_descriptor_distance=.false.
         character(50):: types_descriptor_distance='unknown'
         character(5):: stypat_descriptor_distance(20)='none'
         integer:: ntypat_descriptor_distance=-1
