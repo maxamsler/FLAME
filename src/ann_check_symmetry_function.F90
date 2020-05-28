@@ -145,11 +145,20 @@ subroutine ann_check_symmetry_function(parini)
     else
         do iconf=1,atoms_check%nconf
             call symmetry_functions(parini,ann_arr,atoms_check%atoms(iconf),symfunc,.false.)
+            if(parini%symfunc_type_ann=='behler') then
+                deallocate(symfunc%linked_lists%prime_bound)
+                deallocate(symfunc%linked_lists%bound_rad)
+                deallocate(symfunc%linked_lists%bound_ang)
+            endif
             do iat=1,atoms_check%atoms(iconf)%nat
                 do ig=1,symfunc_check%symfunc(iconf)%ng
                     symfunc_check%symfunc(iconf)%y(ig,iat)=symfunc%y(ig,iat)
                 enddo
             enddo
+            !write(*,*) allocated(symfunc%y),allocated(symfunc%y0d),allocated(symfunc%y0dr)
+            call f_free(symfunc%y)
+            call f_free(symfunc%y0d)
+            call f_free(symfunc%y0dr)
         enddo
     endif
     !----------------------------------------------------------   
